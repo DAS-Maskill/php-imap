@@ -443,6 +443,7 @@ class Folder {
         $idle_client->connect();
         $idle_client->openFolder($this->path, true);
         $idle_client->getConnection()->idle();
+        $idle_client->setIsIdling(true);
 
         $last_action = Carbon::now()->addSeconds($timeout);
 

@@ -199,6 +199,13 @@ class Client {
     ];
 
     /**
+     * Tracks if the client is in idle mode and thus refrain from sending a NOOP when checking the connection
+     * 
+     * @var bool $is_idling
+     */
+    protected bool $is_idling = false;
+
+    /**
      * Client constructor.
      * @param Config $config
      *
@@ -385,6 +392,9 @@ class Client {
      * @return bool
      */
     public function isConnected(): bool {
+        if ($this->is_idling) {
+            return true;
+        }
         return $this->connection && $this->connection->connected();
     }
 
@@ -965,5 +975,17 @@ class Client {
         }
 
         throw new MaskNotFoundException("Unknown mask provided: ".$mask);
+    }
+
+    public function getIsIdling(): bool
+    {
+        return $this->is_idling;
+    }
+
+    public function setIsIdling(bool $is_idling): Client
+    {
+        $this->is_idling = $is_idling;
+
+        return $this;
     }
 }

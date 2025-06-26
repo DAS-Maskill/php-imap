@@ -1,7 +1,7 @@
 {
-    "name": "webklex/php-imap",
+    "name": "das-maskill/php-imap",
     "type": "library",
-    "description": "PHP IMAP client",
+    "description": "Hotfix for Webklex PHP IMAP client",
     "keywords": [
         "webklex",
         "imap",
@@ -9,7 +9,7 @@
         "php-imap",
         "mail"
     ],
-    "homepage": "https://github.com/webklex/php-imap",
+    "homepage": "https://github.com/das-maskill/php-imap",
     "license": "MIT",
     "authors": [
         {
