@@ -690,6 +690,10 @@ class Header {
                 $date = str_replace('+0580', '+0530', $date);
             }
 
+            if (($html_start = strpos($date, '<')) !== false) {
+                $date = substr($date, 0, $html_start);
+            }
+
             $date = trim(rtrim($date));
             try {
                 if (str_contains($date, '&nbsp;')) {
