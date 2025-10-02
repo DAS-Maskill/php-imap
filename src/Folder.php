@@ -392,6 +392,27 @@ class Folder
     }
 
     /**
+     * Retrieve all UIDs in current folder
+     *
+     * @throws ConnectionFailedException
+     * @throws ImapBadRequestException
+     * @throws ImapServerErrorException
+     * @throws RuntimeException
+     * @throws AuthFailedException
+     * @throws ResponseException
+     */
+    public function getAllUids(): array
+    {
+        $this->client->openFolder($this->path);
+        $response = $this->client->getConnection()->search(['ALL'], IMAP::ST_UID);
+        $uids = $response->data();
+        if (! is_array($uids)) {
+            return [];
+        }
+        return array_map('intval', $uids);
+    }
+
+    /**
      * Idle the current connection
      *
      * @param  callable  $callback  function(Message $message) gets called if a new message is received
@@ -479,8 +500,13 @@ class Folder
                 // Always reopen the folder - otherwise the new message number isn't known to the current remote session
                 $this->client->openFolder($this->path, true);
 
-                $message = $this->query()->getMessageByMsgn($msgn);
-                $message->setSequence($sequence);
+                try {
+                    $message = $this->query()->getMessageByMsgn($msgn);
+                    $message->setSequence($sequence);
+                } catch (\Throwable $e) {
+                    $callback('EXPUNGE', null, $msgn);
+                    continue;
+                }
                 $callback('EXISTS', $message);
 
                 $this->dispatch('message', 'new', $message);
