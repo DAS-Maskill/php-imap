@@ -466,7 +466,7 @@ class Folder
                 $last_action = Carbon::now()->addSeconds($timeout);
                 $this->client->openFolder($this->path, true);
 
-                $message = $this->query()->getMessageByMsgn($msgn);
+                $message = $this->query()->leaveUnread()->getMessageByMsgn($msgn);
                 $message->setSequence($sequence);
 
                 $callback('FETCH', $message);
@@ -501,7 +501,7 @@ class Folder
                 $this->client->openFolder($this->path, true);
 
                 try {
-                    $message = $this->query()->getMessageByMsgn($msgn);
+                    $message = $this->query()->leaveUnread()->getMessageByMsgn($msgn);
                     $message->setSequence($sequence);
                 } catch (\Throwable $e) {
                     $callback('EXPUNGE', null, $msgn);

@@ -255,15 +255,19 @@ class LegacyProtocol extends Protocol {
      *
      * @return Response
      */
-    public function content(int|array $uids, string $rfc = "RFC822", int|string $uid = IMAP::ST_UID): Response {
-        return $this->response()->wrap(function($response) use ($uids, $uid) {
+    public function content(int|array $uids, string $rfc = "RFC822", int|string $uid = IMAP::ST_UID, bool $peek = false): Response {
+        return $this->response()->wrap(function($response) use ($uids, $uid, $peek) {
             /** @var Response $response */
 
             $result = [];
             $uids = is_array($uids) ? $uids : [$uids];
+            $flags = $uid === IMAP::ST_UID ? IMAP::ST_UID : IMAP::NIL;
+            if ($peek) {
+                $flags |= IMAP::FT_PEEK;
+            }
             foreach ($uids as $id) {
                 $response->addCommand("imap_fetchbody");
-                $result[$id] = \imap_fetchbody($this->stream, $id, "", $uid === IMAP::ST_UID ? IMAP::ST_UID : IMAP::NIL);
+                $result[$id] = \imap_fetchbody($this->stream, $id, "", $flags);
             }
 
             return $result;
