@@ -779,6 +779,11 @@ class ImapProtocol extends Protocol {
         $items = (array)$items;
         $itemList = $this->escapeList($items);
 
+        // IMAP servers drop .PEEK from response tokens (e.g. BODY.PEEK[TEXT] -> BODY[TEXT])
+        $matchItems = array_map(function($item) {
+            return str_replace('.PEEK', '', $item);
+        }, $items);
+
         $response = $this->sendRequest($this->buildUIDCommand("FETCH", $uid), [$set, $itemList], $tag);
         $result = [];
         $tokens = []; // define $tokens variable before first use
@@ -815,9 +820,9 @@ class ImapProtocol extends Protocol {
 
             // if we only want one item we return that one directly
             if (count($items) == 1) {
-                if ($tokens[2][0] == $items[0]) {
+                if ($tokens[2][0] == $matchItems[0]) {
                     $data = $tokens[2][1];
-                } elseif ($uid === IMAP::ST_UID && $tokens[2][2] == $items[0]) {
+                } elseif ($uid === IMAP::ST_UID && $tokens[2][2] == $matchItems[0]) {
                     $data = $tokens[2][3];
                 } else {
                     $expectedResponse = 0;
@@ -825,7 +830,7 @@ class ImapProtocol extends Protocol {
                     $count = count($tokens[2]);
                     // we start with 2, because 0 was already checked
                     for ($i = 2; $i < $count; $i += 2) {
-                        if ($tokens[2][$i] != $items[0]) {
+                        if ($tokens[2][$i] != $matchItems[0]) {
                             continue;
                         }
                         $data = $tokens[2][$i + 1];
