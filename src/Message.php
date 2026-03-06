@@ -689,9 +689,8 @@ class Message {
      */
     public function peek(): void {
         if ($this->fetch_options == IMAP::FT_PEEK) {
-            if ($this->getFlags()->get("seen") == null) {
-                $this->unsetFlag("Seen");
-            }
+            // BODY.PEEK[] already prevents \Seen from being set,
+            // so there's no need to send a redundant STORE -FLAGS command.
         } elseif ($this->getFlags()->get("seen") == null) {
             $this->setFlag("Seen");
         }
